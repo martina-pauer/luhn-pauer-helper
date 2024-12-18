@@ -16,9 +16,9 @@ def sumar_digitos(numero:int) -> int:
     else:
         return (sumar_digitos(numero // 10) + (numero % 10))
 
-def luhn(numero:str) -> list:
+def luhn(numero:str) -> dict:
     '''
-        Aplica algoritmo de Luhn\npatente US-2950048A.\n\nA partir de texto con numero, devuelve una lista\ncon todos los resultados de aplicar algoritmo de Luhn\n\n[valido, digito_de_control, suma_de_verificacion, formula_de_verificacion].
+        Aplica algoritmo de Luhn\npatente US-2950048A.\n\nA partir de texto con numero, devuelve un diccionario\ncon todos los resultados de aplicar algoritmo de Luhn\n\n claves de accesos:\n\t[valido, digito_de_control, suma_de_verificacion, formula_de_verificacion].
     '''
     # Conversion por si pasan un numero, codigo malicioso u otra cosa distinta a cadena
     numero = str(numero)
@@ -44,12 +44,12 @@ def luhn(numero:str) -> list:
     # Paso 4: Uso suma para verificar con la diferencia de 10 y resto entre suma y 10
     formula_de_verificacion = (10 - (suma_de_verificacion % 10))
     # Debe dar digito de control y devuelvo como una lista para enriquecer la informacion que brinda
-    return [
-                f'¿Numero de Luhn Valido? {(formula_de_verificacion == digito_de_control)}',
-                f'Digito de control (check digit): {digito_de_control}',
-                f'Suma de Verificacion: {suma_de_verificacion}',
-                f'Diferencia entre 10 y resto de dividir Suma de Verificacion y 10: {formula_de_verificacion}'
-            ]
+    return {
+                'valido' : f'¿Numero de Luhn Valido? {(formula_de_verificacion == digito_de_control)}',
+                'control' : f'Digito de control (check digit): {digito_de_control}',
+                'verificacion' : f'Suma de Verificacion: {suma_de_verificacion}',
+                'formula' : f'Diferencia entre 10 y resto de dividir Suma de Verificacion y 10: {formula_de_verificacion}'
+            }
 
 class Helper(Gtk.Window):
 
@@ -68,6 +68,8 @@ class Helper(Gtk.Window):
 
         self.entrada = Gtk.Entry()
 
+        self.entrada.connect('changed', self.cambia_entrada)
+
         self.salida = Gtk.Label(label = 'Dice si el número es valido o dice\ncual podría ser el valido más cercano.')
 
         # Agrego widgets al contenedor
@@ -83,10 +85,30 @@ class Helper(Gtk.Window):
         self.add(self.contenedor)
 
     # Eventos
-    def cambia_entrada(self):
-        pass
+    def cambia_entrada(self, widget):
+        '''
+            Evento para validar cada vez que cambia la entrada.
+        '''
+        if (self.entrada.get_text() == ''):
+            # En caso de vaciar entrada
+            return None
 
-    def ventana_cerrada(self):
+        resultado = ''
+        # Variable de salida de validacion en diccionario
+        texto = luhn(self.entrada.get_text())
+        # Voy iterando sobre cada salida
+        for clave in texto.keys():
+            # Sumo posible salida a resultado con algoritmo de Luhn
+            resultado += f'\t{texto[clave.__str__()].__str__()}\t\n\n'
+        # Elimino variable que no necesito por seguridad y rendimiento
+        del texto
+        # Actualizo salida
+        self.salida.set_text(resultado)
+
+    def ventana_cerrada(self, widget):
+        '''
+            Evento finalizar ventana cuando se cierra.
+        '''
         pass
 
 if __name__ == '__main__':
@@ -102,4 +124,4 @@ if __name__ == '__main__':
         # Cierro ventana
         validador.close()
         # Libero memoria
-        del luhn, validador, Helper
+        del luhn, sumar_digitos, validador, Helper
