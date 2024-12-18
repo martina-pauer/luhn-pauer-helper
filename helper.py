@@ -22,8 +22,8 @@ def luhn(numero:str) -> dict:
     '''
     # Conversion por si pasan un numero, codigo malicioso u otra cosa distinta a cadena
     numero = str(numero)
-    # Paso 1: Obtiene numero de control, ultimo digito del numero
-    digito_de_control = int(numero[numero.__len__() - 1])
+    # Paso 1: Obtiene numero de control, primer digito del numero
+    digito_de_control = int(numero[0])
     # Paso 2: Por cada uno de los digitos sobrantes de ultimo a primero
     #         multiplicar digitos para obtener resultados menores a 9
 
@@ -33,7 +33,7 @@ def luhn(numero:str) -> dict:
         # Realizo conversion de tipos
         digito = int(digito)
         # Procedo con algoritmo en sí
-        if (2 * digito) < 9:
+        if ((numero.index(digito.__str__()) % 2) != 0):
             digito *= 2
         else:
             digito *= 1
