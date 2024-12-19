@@ -67,9 +67,11 @@ class Helper(Gtk.Window):
         self.etiqueta_para_entrada = Gtk.Label(label = 'Validar número usando algoritmo de Luhn:')
 
         self.entrada = Gtk.Entry()
-
+        # Conecto evento para caundo cambia texto en entrada
         self.entrada.connect('changed', self.cambia_entrada)
-
+        # Conecto evento para cuando se cierra la ventana
+        self.connect('delete-event', Gtk.main_quit)
+        # Creo salida con el resultado de la validaacion del numero en entrada
         self.salida = Gtk.Label(label = 'Dice si el número es valido o dice\ncual podría ser el valido más cercano.')
 
         # Agrego widgets al contenedor
