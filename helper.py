@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import gi
+import gi, sys
 
 gi.require_version('Gtk', '3.0')
 
@@ -11,7 +11,7 @@ def sumar_digitos(numero:int) -> int:
     '''
         Suma digitos del numero
     '''
-    if (numero < 9):
+    if (numero <= 9):
         return numero
     else:
         return (sumar_digitos(numero // 10) + (numero % 10))
@@ -23,26 +23,20 @@ def luhn(numero:str) -> dict:
     # Conversion por si pasan un numero, codigo malicioso u otra cosa distinta a cadena
     numero = str(numero)
     # Paso 1: Obtiene numero de control, primer digito del numero
-    digito_de_control = int(numero[0])
-    # Paso 2: Por cada uno de los digitos sobrantes de ultimo a primero
-    #         multiplicar digitos para obtener resultados menores a 9
-
     suma_de_verificacion = 0
-
+    # Ciclo para aplicar luhn
     for digito in numero[::-1]:
         # Realizo conversion de tipos
         digito = int(digito)
-        # Procedo con algoritmo en sí
+        # Duplico y guardo en digito, los digitos en posiciones impares
         if ((numero.index(digito.__str__()) % 2) != 0):
             digito *= 2
-        else:
-            digito *= 1
-        # Suma digitos del numero
-        digito = sumar_digitos(digito)
-        # Paso 3: Sumar cada resultado a variable externa "suma_de_verificacion" al ciclo
-        suma_de_verificacion += digito
-    # Paso 4: Uso suma para verificar con la diferencia de 10 y resto entre suma y 10
+        # Paso 2: Sumar cada suma de digitos del digito a variable externa "suma_de_verificacion" al ciclo
+        suma_de_verificacion += sumar_digitos(digito)
+    # Paso 3: Uso suma para verificar con la diferencia de 10 y resto entre suma y 10
     formula_de_verificacion = (10 - (suma_de_verificacion % 10))
+    # Obtiene digito de control para luego verificar y no exista durante mucho tiempo por seguridad
+    digito_de_control = int(numero[0])
     # Debe dar digito de control y devuelvo como una lista para enriquecer la informacion que brinda
     return {
                 'valido' : f'¿Numero de Luhn Valido? {(formula_de_verificacion == digito_de_control)}',
@@ -113,7 +107,7 @@ class Helper(Gtk.Window):
         '''
         pass
 
-if __name__ == '__main__':
+if ((sys.argv.__len__() == 1) and (__name__ == '__main__')):
     # Creo objeto que instancia ventana Helper de validador Luhn
     validador = Helper()
     # Manejador de excepciones para mostrar o cerrar ventana
@@ -127,3 +121,11 @@ if __name__ == '__main__':
         validador.close()
         # Libero memoria
         del luhn, sumar_digitos, validador, Helper
+elif (sys.argv.__contains__('-n')) and (__name__ == '__main__'):
+    # Obtengo salida de algoritmo de luhn
+    texto = luhn(int(sys.argv[sys.argv.index('-n') + 1]))
+    # Muestro resultado de cada clave de la salida
+    for clave in texto.keys():
+        print(f'\n\t{clave.__str__()} : {texto[clave].__str__()}\n\n')
+else:
+    print('\nOpciones:\n\n\t-n <numero-a-valiadar>\n\n\t-f <archivo-con-lista-de-numeros>\n\n\t-t (shell interactiva)\n\n')
